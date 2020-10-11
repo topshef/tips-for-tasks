@@ -12,22 +12,27 @@ public class HCSRunningHashDemo {
     static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 	
 	public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        HederaId payer = new HederaId(0, 0, 6205);
-        HederaId topicId = new HederaId(0, 0, 63956);
-
-        // using hash of message 1 of Topic 0.0.63956.
-        String currentRunningHashInHex = "b2b0a6dde101e7e8860fc3e3ceef91c9d68ae6bc6b8f60b7c0f74f94c60039c07f6355d48e86456a603e91854eb0c5cf";
+		
+		// example data https://hbar.live/mirror/hcs/?topicId=0.0.43738&fromSeq=5801&sortBy=asc&limit=2&unpack=hex&mirrornode=dragonglass&outputformat=debug
+		
+        HederaId payer = new HederaId(0, 0, 27498);
+        HederaId topicId = new HederaId(0, 0, 43738);
+		
+		long sequenceNumber = 5801;
+		
+        String currentRunningHashInHex = "5e75efe15c385d6561f54dec9e7303653a6ce732aca25fb33de3533ade9b903443877837391ab55532cd5ff38272db98";
         // use running hash in byte array format. Hedera Java SDK natively only returns byte array.
-        //byte[] currHash = new byte[]{-78, -80, -90, -35, -31, 1, -25, -24, -122, 15, -61, -29, -50, -17, -111, -55, -42, -118, -26, -68, 107, -113, 96, -73, -64, -9, 79, -108, -58, 0, 57, -64, 127, 99, 85, -44, -114, -122, 69, 106, 96, 62, -111, -123, 78, -80, -59, -49};
         byte[] currHash = hexToByteArray(currentRunningHashInHex);
 
-        long sequenceNumber = 1;
-
-        //Timestamp to send second message.
-        Instant timestamp = Instant.parse("2020-10-07T09:13:35.277456002Z");
+  
+        // data for next message
+		// get consensus time from Kabuto https://docs.kabuto.sh/reference#transaction
+		// https://api.kabuto.sh/v1/transaction?q={%22id%22:%20%220.0.27498@1601936153.164000000%22}
+        Instant timestamp = Instant.parse("2020-10-05T22:16:03.442497001Z");
 
         //message to send: (needs to be in byte array)
-        String messageInString = "hcs demo - 10x";
+		//https://explorer.kabuto.sh/testnet/topic/0.0.43738/message/5802
+        String messageInString = "W3siZXZlbnRJZCI6ImtwYXlsaXRlQDE2MDE5MzYxNjMuMDgyIiwiY2hhcmdlIjpbeyJoYXNoTWVtYmVyIjoiODcxNTA5YzU1Y2VjMTE1OGRlNmQ1YWM3NWM2ZTU1YmU3MDUxZGIzNWJkZGRhNzkwOTYzOTRhY2FiYjUxMjgyMCIsImhhc2hLcGF5SWQiOiIzMDQwYzg4ODI1ZGIwZWMxNjVjMzFkYTBkYjBjNjJjMjE0NTBhMGZlYjhiN2M4YjQ0MDExYTJiNzg4MTc0MTc4IiwiYW1vdW50IjoiMC4xIiwicmVjaXBpZW50SWQiOiIwLjAuMjc0OTciLCJtZW1vIjoidmVzYXVydXMuY29tICh2aWEga3BheWxpdGUgYXBpKSJ9XX1d";
         byte[] message = messageInString.getBytes();
 
         System.out.println("Given: "
@@ -36,7 +41,7 @@ public class HCSRunningHashDemo {
                 + "\n\tCurrent Running Hash (in hex string): " + currentRunningHashInHex
                 + "\n\tCurrent sequence number: " + sequenceNumber
                 + "\n\tMessage to send: " + messageInString
-                + "\n\tTimestamp to send on: " + timestamp
+                + "\n\tConsensus timestamp: " + timestamp
         );
 
         byte[] nextHash = HCSRunningHashDemo.getNextHash(currHash, payer, topicId, timestamp, sequenceNumber, message);
