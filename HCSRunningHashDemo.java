@@ -15,23 +15,25 @@ public class HCSRunningHashDemo {
 		
 		// example data https://hbar.live/mirror/hcs/?topicId=0.0.43738&fromSeq=5801&sortBy=asc&limit=2&unpack=hex&mirrornode=dragonglass&outputformat=debug
 		
-        HederaId payer = new HederaId(0, 0, 27498);
         HederaId topicId = new HederaId(0, 0, 43738);
 		
+	// details of the first message
 		long sequenceNumber = 5801;
 		
         String currentRunningHashInHex = "5e75efe15c385d6561f54dec9e7303653a6ce732aca25fb33de3533ade9b903443877837391ab55532cd5ff38272db98";
         // use running hash in byte array format. Hedera Java SDK natively only returns byte array.
         byte[] currHash = hexToByteArray(currentRunningHashInHex);
 
-  
-        // data for next message
+
+    // details of the next message
+		HederaId payer = new HederaId(0, 0, 27498);
+		
+        Instant timestamp = Instant.parse("2020-10-05T22:16:03.442497001Z");
 		// get consensus time from Kabuto https://docs.kabuto.sh/reference#transaction
 		// https://api.kabuto.sh/v1/transaction?q={%22id%22:%20%220.0.27498@1601936153.164000000%22}
-        Instant timestamp = Instant.parse("2020-10-05T22:16:03.442497001Z");
 
         //message to send: (needs to be in byte array)
-		//https://explorer.kabuto.sh/testnet/topic/0.0.43738/message/5802
+		//https://explorer.kabuto.sh/mainnet/topic/0.0.43738/message/5802
         String messageInString = "W3siZXZlbnRJZCI6ImtwYXlsaXRlQDE2MDE5MzYxNjMuMDgyIiwiY2hhcmdlIjpbeyJoYXNoTWVtYmVyIjoiODcxNTA5YzU1Y2VjMTE1OGRlNmQ1YWM3NWM2ZTU1YmU3MDUxZGIzNWJkZGRhNzkwOTYzOTRhY2FiYjUxMjgyMCIsImhhc2hLcGF5SWQiOiIzMDQwYzg4ODI1ZGIwZWMxNjVjMzFkYTBkYjBjNjJjMjE0NTBhMGZlYjhiN2M4YjQ0MDExYTJiNzg4MTc0MTc4IiwiYW1vdW50IjoiMC4xIiwicmVjaXBpZW50SWQiOiIwLjAuMjc0OTciLCJtZW1vIjoidmVzYXVydXMuY29tICh2aWEga3BheWxpdGUgYXBpKSJ9XX1d";
         byte[] message = messageInString.getBytes();
 
@@ -55,13 +57,15 @@ public class HCSRunningHashDemo {
     /**
      * Method that creates the next hash in sequence:
      *
-     * @param runningHash        - current hash
-     * @param payer              - account id that paid for sending the hcs message
      * @param topicId            - topic id of the hcs message
-     * @param consensusTimestamp - timestamp when the NEW message must be sent
-     * @param sequenceNumber     - sequenece number of the current message (not the new one)
-     * @param message            - message to be sent
-     * @return - the new expected running hash
+	 * @param sequenceNumber     - sequence number of the first message
+	 * @param runningHash        - running hash of first message
+	 
+	 * remaining parameters related to the next message:
+     * @param payer              - account id that paid for sending the hcs message
+     * @param consensusTimestamp - timestamp (in nanoseconds) when the message reached consensus
+     * @param message            - hcs message string
+     * @return 					 - the new expected running hash
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
